@@ -11,19 +11,21 @@ using data_type = int;
 
 struct Node
 {
-    data_type data;
-    index_type left_child_index = 0;
-    index_type right_child_index = 0;
+    data_type data_;
+    index_type left_child_index_ = 0;
+    index_type right_child_index_ = 0;
 
     Node(data_type data, index_type left_child_index, index_type right_child_index):
-        data(data), left_child_index(left_child_index), right_child_index(right_child_index)
+        data_(data),
+        left_child_index_(left_child_index),
+        right_child_index_(right_child_index)
     {
     }
 };
 
 
 std::ostream &operator<<(std::ostream &os, Node const &node) {
-    return os << "Node(" << node.data << ", " << node.left_child_index << ", " << node.right_child_index << ")";
+    return os << "Node(" << node.data_ << ", " << node.left_child_index_ << ", " << node.right_child_index_ << ")";
 }
 
 
@@ -56,11 +58,10 @@ struct BinaryTree
     index_type insert_and_get_index(index_type parent_index, Direction direction, data_type data)
     {
         nodes_.push_back(Node(data, 0, 0));
-        index_type node_index = nodes_.size() - 1;
+        index_type node_index = static_cast<index_type>(nodes_.size() - 1);
         switch (direction) {
-            case Direction::LEFT: nodes_[parent_index].left_child_index = node_index; break;
-            case Direction::RIGHT: nodes_[parent_index].right_child_index = node_index; break;
-            default: assert( direction != Direction::LEFT && direction != Direction::RIGHT && "Wrong Direction");
+            case Direction::LEFT: nodes_[static_cast<size_t>(parent_index)].left_child_index_ = node_index; break;
+            case Direction::RIGHT: nodes_[static_cast<size_t>(parent_index)].right_child_index_ = node_index; break;
         }
         return node_index;
     }
@@ -74,19 +75,35 @@ struct BinaryTree
     {
         assert(nodes_.size() > 0 && "Need a non-empty tree!");
 
-        Node current_node = nodes_[current_index];
+        Node current_node = nodes_[static_cast<size_t>(current_index)];
         for(int i = 0; i < indent; ++i)
         {
             std::cout << "  ";
         }
         std::cout << current_node << "\n";
-        if (current_node.left_child_index)
+        if (current_node.left_child_index_)
         {
-            print_as_tree(current_node.left_child_index, indent + 1);
+            print_as_tree(current_node.left_child_index_, indent + 1);
         }
-        if (current_node.right_child_index)
+        else
         {
-            print_as_tree(current_node.right_child_index, indent + 1);
+            for(int i = 0; i < indent + 1; ++i)
+            {
+                std::cout << "  ";
+            }
+            std::cout << "No left child\n";
+        }
+        if (current_node.right_child_index_)
+        {
+            print_as_tree(current_node.right_child_index_, indent + 1);
+        }
+        else
+        {
+            for(int i = 0; i < indent + 1; ++i)
+            {
+                std::cout << "  ";
+            }
+            std::cout << "No right child\n";
         }
     }
 
@@ -97,7 +114,7 @@ struct BinaryTree
         index_type size = static_cast<index_type>(nodes_.size());
         for(index_type i = 0; i < size; ++i)
         {
-            std::cout << nodes_[i] << "\n";
+            std::cout << nodes_[static_cast<size_t>(i)] << "\n";
         }
     }
 };
@@ -106,7 +123,10 @@ struct BinaryTree
 void test_tree()
 {
     BinaryTree bt(1);
-    auto root_l = bt.insert_and_get_index(bt.root_index, BinaryTree::Direction::LEFT, 2);
+    using D = BinaryTree::Direction;
+    auto root_l = bt.insert_and_get_index(bt.root_index, D::LEFT, 2);
+    auto root_l_r = bt.insert_and_get_index(root_l, D::RIGHT, 3);
+    (void)root_l_r; // appease -Wunused-variable
     std::cout << "Printing as Vector:\n";
     bt.print_as_vector();
     std::cout << "Printing as Tree:\n";
