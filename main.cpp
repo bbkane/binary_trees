@@ -15,6 +15,7 @@ struct Node
     index_type left_child_index_ = 0;
     index_type right_child_index_ = 0;
 
+    // TODO: does this work with non-POD types?
     Node(data_type data, index_type left_child_index, index_type right_child_index):
         data_(data),
         left_child_index_(left_child_index),
@@ -117,6 +118,40 @@ struct BinaryTree
             std::cout << nodes_[static_cast<size_t>(i)] << "\n";
         }
     }
+
+    void print_as_dot()
+    {
+        assert(nodes_.size() > 0 && "Need a non-empty tree!");
+
+        std::cout << "digraph my_graph {\n";
+
+        index_type size = static_cast<index_type>(nodes_.size());
+        for(index_type i = 0; i < size; ++i)
+        {
+            auto node = nodes_[static_cast<size_t>(i)] ;
+            std::cout << "  node_" << i << "[label=" <<  node.data_ << "];\n";
+            if (node.left_child_index_)
+            {
+                std::cout << "  node_" << i << " -> " << "node_" << node.left_child_index_ << ";\n";
+            }
+            else
+            {
+                std::cout << "  null_left_" << i << "[shape=point];\n";
+                std::cout << "  node_" << i << " -> null_left_" << i << ";\n";
+            }
+            if (node.right_child_index_)
+            {
+                std::cout << "  node_" << i << " -> " << "node_" << node.right_child_index_ << ";\n";
+            }
+            else
+            {
+                std::cout << "  null_right_" << i << "[shape=point];\n";
+                std::cout << "  node_" << i << " -> null_right_" << i << ";\n";
+            }
+        }
+        std::cout << "}\n";
+
+    }
 };
 
 
@@ -127,10 +162,11 @@ void test_tree()
     auto root_l = bt.insert_and_get_index(bt.root_index, D::LEFT, 2);
     auto root_l_r = bt.insert_and_get_index(root_l, D::RIGHT, 3);
     (void)root_l_r; // appease -Wunused-variable
-    std::cout << "Printing as Vector:\n";
-    bt.print_as_vector();
-    std::cout << "Printing as Tree:\n";
-    bt.print_as_tree();
+    // std::cout << "Printing as Vector:\n";
+    // bt.print_as_vector();
+    // std::cout << "Printing as Tree:\n";
+    // bt.print_as_tree();
+    bt.print_as_dot();
 }
 
 
