@@ -142,7 +142,7 @@ struct BinaryTree
             out_stream << "  node_" << i << "[label=" <<  node.data_ << "];\n";
             if (node.left_child_index_)
             {
-                out_stream << "  node_" << i << " -> " << "node_" << node.left_child_index_ << ";\n";
+                out_stream << "  node_" << i << " -> " << "node_" << node.left_child_index_ << "[label=" << node.left_child_index_ << "];\n";
             }
             else
             {
@@ -151,7 +151,7 @@ struct BinaryTree
             }
             if (node.right_child_index_)
             {
-                out_stream << "  node_" << i << " -> " << "node_" << node.right_child_index_ << ";\n";
+                out_stream << "  node_" << i << " -> " << "node_" << node.right_child_index_ << "[label=" << node.right_child_index_ << "];\n";
             }
             else
             {
@@ -167,14 +167,15 @@ struct BinaryTree
     }
 };
 
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
 void test_tree()
 {
     BinaryTree bt(1);
     using D = BinaryTree::Direction;
+    auto root_r = bt.insert_and_get_index(bt.root_index, D::RIGHT, 4);
     auto root_l = bt.insert_and_get_index(bt.root_index, D::LEFT, 2);
     auto root_l_r = bt.insert_and_get_index(root_l, D::RIGHT, 3);
-    (void)root_l_r; // appease -Wunused-variable
 
     std::cout << "# Printing as Vector:\n";
     bt.print_as_vector(std::cout);
@@ -185,7 +186,7 @@ void test_tree()
     std::ofstream fout("tmp.dot");
     bt.print_as_dot(fout);
 }
-
+#pragma clang diagnostic pop
 
 int main()
 {
