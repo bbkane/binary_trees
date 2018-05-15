@@ -167,6 +167,32 @@ struct BinaryTree
     }
 };
 
+// TODO: make the print methods const so I can make this const
+// NOTE: This only works on OSX with imgcat installed. That's why it's not a
+// method
+void imgcat_tree(BinaryTree& bt, const std::string& file_name)
+{
+    std::cout << "# Saving dot to " << file_name << "\n";
+
+    // Do this in it's own scope to ensure the file is written
+    // before calling dot on it
+    {
+        std::ofstream fout(file_name);
+        bt.print_as_dot(fout);
+    }
+
+    // Isn' string-building fun? Just shoot me in the cabeza
+    std::string dot_cmd = "dot -Tpng -O ";
+    dot_cmd += file_name;
+    std::cout << "# " << dot_cmd << "\n";
+    system(dot_cmd.c_str());
+
+    std::string imgcat_cmd = "imgcat ";
+    imgcat_cmd += (file_name + ".png");
+    std::cout << "# " <<  imgcat_cmd << "\n";
+    system(imgcat_cmd.c_str());
+}
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable"
 void test_tree()
@@ -182,9 +208,7 @@ void test_tree()
     std::cout << "# Printing as Tree:\n";
     bt.print_as_tree(std::cout);
 
-    std::cout << "# Saving dot to 'tmp.dot'\n";
-    std::ofstream fout("tmp.dot");
-    bt.print_as_dot(fout);
+    imgcat_tree(bt, "tmp1.dot");
 }
 #pragma clang diagnostic pop
 
