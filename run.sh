@@ -11,5 +11,5 @@ cd "${script_dir}"
 
 mkdir -p "${script_dir}/build"
 
-git ls-files | entr -c -s "cd ${script_dir}/build && make"
+git ls-files | entr -c -s "cd ${script_dir}/build && make valgrind"
 
