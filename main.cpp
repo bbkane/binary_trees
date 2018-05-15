@@ -1,6 +1,7 @@
 #include <cassert>
-#include <ostream>
+#include <fstream>
 #include <iostream>
+#include <ostream>
 #include <vector>
 
 // Don't use size_t for now in the vector
@@ -72,85 +73,97 @@ struct BinaryTree
         nodes_.push_back(Node(data, 0, 0));
     }
 
-    void print_as_tree(index_type current_index=0, int indent=0)
+    void print_as_tree(std::ostream &out_stream, index_type current_index=0, int indent=0)
     {
         assert(nodes_.size() > 0 && "Need a non-empty tree!");
 
         Node current_node = nodes_[static_cast<size_t>(current_index)];
         for(int i = 0; i < indent; ++i)
         {
-            std::cout << "  ";
+            out_stream << "  ";
         }
-        std::cout << current_node << "\n";
+        out_stream << current_node << "\n";
         if (current_node.left_child_index_)
         {
-            print_as_tree(current_node.left_child_index_, indent + 1);
+            print_as_tree(out_stream, current_node.left_child_index_, indent + 1);
         }
         else
         {
             for(int i = 0; i < indent + 1; ++i)
             {
-                std::cout << "  ";
+                out_stream << "  ";
             }
-            std::cout << "No left child\n";
+            out_stream << "No left child\n";
         }
         if (current_node.right_child_index_)
         {
-            print_as_tree(current_node.right_child_index_, indent + 1);
+            print_as_tree(out_stream, current_node.right_child_index_, indent + 1);
         }
         else
         {
             for(int i = 0; i < indent + 1; ++i)
             {
-                std::cout << "  ";
+                out_stream << "  ";
             }
-            std::cout << "No right child\n";
+            out_stream << "No right child\n";
         }
     }
 
-    void print_as_vector()
+    void print_as_tree()
+    {
+        print_as_tree(std::cout);
+    }
+
+    void print_as_vector(std::ostream &out_stream)
     {
         assert(nodes_.size() > 0 && "Need a non-empty tree!");
 
         index_type size = static_cast<index_type>(nodes_.size());
         for(index_type i = 0; i < size; ++i)
         {
-            std::cout << nodes_[static_cast<size_t>(i)] << "\n";
+            out_stream << nodes_[static_cast<size_t>(i)] << "\n";
         }
     }
+    void print_as_vector()
+    {
+        print_as_vector(std::cout);
+    }
 
-    void print_as_dot()
+    void print_as_dot(std::ostream &out_stream)
     {
         assert(nodes_.size() > 0 && "Need a non-empty tree!");
 
-        std::cout << "digraph my_graph {\n";
+        out_stream << "digraph my_graph {\n";
 
         index_type size = static_cast<index_type>(nodes_.size());
         for(index_type i = 0; i < size; ++i)
         {
             auto node = nodes_[static_cast<size_t>(i)] ;
-            std::cout << "  node_" << i << "[label=" <<  node.data_ << "];\n";
+            out_stream << "  node_" << i << "[label=" <<  node.data_ << "];\n";
             if (node.left_child_index_)
             {
-                std::cout << "  node_" << i << " -> " << "node_" << node.left_child_index_ << ";\n";
+                out_stream << "  node_" << i << " -> " << "node_" << node.left_child_index_ << ";\n";
             }
             else
             {
-                std::cout << "  null_left_" << i << "[shape=point];\n";
-                std::cout << "  node_" << i << " -> null_left_" << i << ";\n";
+                out_stream << "  null_left_" << i << "[shape=point];\n";
+                out_stream << "  node_" << i << " -> null_left_" << i << ";\n";
             }
             if (node.right_child_index_)
             {
-                std::cout << "  node_" << i << " -> " << "node_" << node.right_child_index_ << ";\n";
+                out_stream << "  node_" << i << " -> " << "node_" << node.right_child_index_ << ";\n";
             }
             else
             {
-                std::cout << "  null_right_" << i << "[shape=point];\n";
-                std::cout << "  node_" << i << " -> null_right_" << i << ";\n";
+                out_stream << "  null_right_" << i << "[shape=point];\n";
+                out_stream << "  node_" << i << " -> null_right_" << i << ";\n";
             }
         }
-        std::cout << "}\n";
-
+        out_stream << "}\n";
+    }
+    void print_as_dot()
+    {
+        print_as_dot(std::cout);
     }
 };
 
@@ -162,11 +175,15 @@ void test_tree()
     auto root_l = bt.insert_and_get_index(bt.root_index, D::LEFT, 2);
     auto root_l_r = bt.insert_and_get_index(root_l, D::RIGHT, 3);
     (void)root_l_r; // appease -Wunused-variable
-    // std::cout << "Printing as Vector:\n";
-    // bt.print_as_vector();
-    // std::cout << "Printing as Tree:\n";
-    // bt.print_as_tree();
-    bt.print_as_dot();
+
+    std::cout << "# Printing as Vector:\n";
+    bt.print_as_vector(std::cout);
+    std::cout << "# Printing as Tree:\n";
+    bt.print_as_tree(std::cout);
+
+    std::cout << "# Saving dot to 'tmp.dot'\n";
+    std::ofstream fout("tmp.dot");
+    bt.print_as_dot(fout);
 }
 
 

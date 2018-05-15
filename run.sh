@@ -12,6 +12,7 @@ cd "${script_dir}"
 mkdir -p "${script_dir}/build"
 
 do_in_build="make valgrind"
-do_in_build="make && ./binary_trees | dot -Tpng | imgcat"
+do_in_build="make && ./binary_trees"
+do_in_build="make && ./binary_trees && dot -Tpng tmp.dot | imgcat"
 git ls-files | entr -c -s "cd ${script_dir}/build && ${do_in_build}"
 
