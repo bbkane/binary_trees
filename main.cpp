@@ -10,6 +10,14 @@ using index_type = int;
 using data_type = int;
 
 
+// annoying to type...
+inline static size_t
+to_size_t(index_type index)
+{
+    return static_cast<size_t>(index); 
+}
+
+
 struct Node
 {
     data_type data_;
@@ -62,8 +70,8 @@ struct BinaryTree
         nodes_.emplace_back(data, 0, 0);
         index_type node_index = static_cast<index_type>(nodes_.size() - 1);
         switch (direction) {
-            case Direction::LEFT: nodes_[static_cast<size_t>(parent_index)].left_child_index_ = node_index; break;
-            case Direction::RIGHT: nodes_[static_cast<size_t>(parent_index)].right_child_index_ = node_index; break;
+            case Direction::LEFT: nodes_[to_size_t(parent_index)].left_child_index_ = node_index; break;
+            case Direction::RIGHT: nodes_[to_size_t(parent_index)].right_child_index_ = node_index; break;
         }
         return node_index;
     }
@@ -82,7 +90,7 @@ struct BinaryTree
     {
         assert(nodes_.size() > 0 && "Need a non-empty tree!");
 
-        Node current_node = nodes_[static_cast<size_t>(current_index)];
+        Node current_node = nodes_[to_size_t(current_index)];
         for(int i = 0; i < indent; ++i)
         {
             out_stream << "  ";
@@ -126,7 +134,7 @@ struct BinaryTree
         index_type size = static_cast<index_type>(nodes_.size());
         for(index_type i = 0; i < size; ++i)
         {
-            out_stream << nodes_[static_cast<size_t>(i)] << "\n";
+            out_stream << nodes_[to_size_t(i)] << "\n";
         }
     }
     void print_as_vector()
@@ -143,7 +151,7 @@ struct BinaryTree
         index_type size = static_cast<index_type>(nodes_.size());
         for(index_type i = 0; i < size; ++i)
         {
-            auto node = nodes_[static_cast<size_t>(i)] ;
+            auto node = nodes_[to_size_t(i)] ;
             out_stream << "  node_" << i << "[label=" <<  node.data_ << "];\n";
             if (node.left_child_index_)
             {
@@ -214,7 +222,7 @@ struct BinarySearchTree
     // Assume we're starting at the root
     index_type insert(data_type data, index_type current_index=0)
     {
-        Node current_node = bt_.nodes_[static_cast<size_t>(current_index)];
+        Node current_node = bt_.nodes_[to_size_t(current_index)];
         if (current_node.data_ == data) { return current_index; }
         if (data < current_node.data_)
         {
@@ -263,7 +271,6 @@ void test_binary_search_tree()
     imgcat_tree(bst.bt_, "tmp.dot");
     auto data = {
         1,
-        -1,
         3,
         2,
         0,
