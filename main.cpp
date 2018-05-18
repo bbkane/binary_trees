@@ -59,7 +59,7 @@ struct BinaryTree
     // TODO: for now, always insert at the back of the vector. Don't worry about removing nodes just yet...
     index_type insert_and_get_index(index_type parent_index, Direction direction, data_type data)
     {
-        nodes_.push_back(Node(data, 0, 0));
+        nodes_.emplace_back(data, 0, 0);
         index_type node_index = static_cast<index_type>(nodes_.size() - 1);
         switch (direction) {
             case Direction::LEFT: nodes_[static_cast<size_t>(parent_index)].left_child_index_ = node_index; break;
@@ -70,7 +70,12 @@ struct BinaryTree
 
     BinaryTree(data_type data)
     {
-        nodes_.push_back(Node(data, 0, 0));
+        nodes_.emplace_back(data, 0, 0);
+    }
+
+    // Provide a default constructor so my BinarySearchTree can use it
+    BinaryTree()
+    {
     }
 
     void print_as_tree(std::ostream &out_stream, index_type current_index=0, int indent=0)
@@ -193,6 +198,47 @@ void imgcat_tree(BinaryTree& bt, const std::string& file_name)
     system(imgcat_cmd.c_str());
 }
 
+
+// Let's make a binary search tree (append only for now) (we'll get into balancing it later)
+
+// This is non-balancing
+struct BinarySearchTree
+{
+    BinaryTree bt_;
+
+    BinarySearchTree(data_type data): bt_(data)
+    {
+    }
+
+    // TODO: assume that bt_ isn't empty
+    // Assume we're starting at the root
+    index_type insert(data_type data, index_type current_index=0)
+    {
+        Node current_node = bt_.nodes_[static_cast<size_t>(current_index)];
+        if (current_node.data_ == data) { return current_index; }
+        if (data < current_node.data_)
+        {
+            if (current_node.left_child_index_)
+            {
+                return insert(data, current_node.left_child_index_);
+            }
+            index_type new_index = bt_.insert_and_get_index(current_index, BinaryTree::Direction::LEFT, data);
+            return new_index;
+        }
+        else // (data > current_node.data_)
+        {
+            if (current_node.right_child_index_)
+            {
+                return insert(data, current_node.right_child_index_);
+            }
+            index_type new_index = bt_.insert_and_get_index(current_index, BinaryTree::Direction::RIGHT, data);
+            return new_index;
+        }
+    }
+};
+
+
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable"
 void test_tree()
@@ -210,9 +256,33 @@ void test_tree()
 
     imgcat_tree(bt, "tmp1.dot");
 }
+
+void test_binary_search_tree()
+{
+    BinarySearchTree bst(0);
+    imgcat_tree(bst.bt_, "tmp.dot");
+    auto data = {
+        1,
+        -1,
+        3,
+        2,
+        0,
+        -10,
+        4,
+        -5
+    };
+    for(auto i: data)
+    {
+        bst.insert(i);
+        imgcat_tree(bst.bt_, "tmp.dot");
+    }
+
+}
+
 #pragma clang diagnostic pop
 
 int main()
 {
-    test_tree();
+    test_binary_search_tree();
+    // test_tree();
 }
